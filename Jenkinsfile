@@ -16,7 +16,7 @@ pipeline {
                     // Uncomment to get lots of debugging output
                     //openshift.logLevel(1)
                     openshift.withCluster() {
-                        echo("Create project ${env.PRJ}") 
+                        echo("Create project ${env.PRJ}.    Data : ${env.GIT_URL}#${env.BRANCH_NAME}") 
                         openshift.newProject("${env.PRJ}")
                         openshift.withProject("${env.PRJ}") {
                             echo('Grant to developer read access to the project')
