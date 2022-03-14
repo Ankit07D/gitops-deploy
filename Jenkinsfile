@@ -1,6 +1,6 @@
 pipeline {
     environment {
-        DOMAIN='apps.cluster-c655.c655.example.opentlc.com'
+        DOMAIN='apps.ocp4.example.com'
         PRJ="hello-${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
         APP='nodeapp'
     }
@@ -16,13 +16,13 @@ pipeline {
                     // Uncomment to get lots of debugging output
                     //openshift.logLevel(1)
                     openshift.withCluster() {
-                        echo("Create project ${env.PRJ}.    Data : ${env.GIT_URL}#${env.BRANCH_NAME}") 
+                        echo("Create project ${env.PRJ}") 
                         openshift.newProject("${env.PRJ}")
                         openshift.withProject("${env.PRJ}") {
                             echo('Grant to developer read access to the project')
                             openshift.raw('policy', 'add-role-to-user', 'view', 'developer')
                             echo("Create app ${env.APP}") 
-                            openshift.newApp("${env.GIT_URL}", "--strategy source", "--name ${env.APP}")
+                            openshift.newApp("${env.GIT_URL}#${env.BRANCH_NAME}", "--strategy source", "--name ${env.APP}")
                         }
                     }
                 }
@@ -79,5 +79,14 @@ pipeline {
             }
         }
     }
-    
+    post {
+        always {
+            script {
+                openshift.withCluster() {
+                    echo("Delete project ${env.PRJ}") 
+                    openshift.delete("project/${env.PRJ}")
+                }
+            }
+        }
+    }
 }
